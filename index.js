@@ -92,4 +92,41 @@ function firstProm() {
         }
       })
   }
+  
+  menu()
+  // function to list departments
+    function listDepart () {
+      employeeDb.allDepartments().then(([rows]) => {
+        let department = rows;
+        console.table('Departments', department);
+      }).then(() => menu())
+    }
+  
+  // function to list roles
+  function listRoles() {
+    employeeDb.allRoles().then(([rows]) => {
+      let role = rows;
+      console.table('Roles', role);
+    }).then(() => menu())
+  }
+  
+  // function to list employees
+  function listEmployees() {
+    employeeDb.allEmployees().then(([rows]) => {
+      let employee = rows;
+      console.table('Employees', employee);
+    }).then(() => menu())
+  }
+  
+  // function to add department
+  function addDepart() {
+    inquirer.prompt(createDepart)
+    .then((answer) => {
+      let name = answer.newDepart;
+      employeeDb.insertDepartment(name);
+      console.log(`'${name}' added to department database`);
+    })
+    .then(() => menu())
+  }
+  
 }
