@@ -183,4 +183,139 @@ function firstProm() {
                 .then(() => menu());
         });
     }
+    // function to add employee
+    function addEmployee() {
+        inquirer
+            .prompt([
+                {
+                    type: "input",
+                    name: "first_name",
+                    message: "Enter the first name of the employee",
+                },
+                {
+                    type: "input",
+                    name: "last_name",
+                    message: "Enter the last name of the employee",
+                },
+            ])
+            .then((answer) => {
+                let firstName = answer.first_name;
+                let lastName = answer.last_name;
+
+                employeeDb.allRoles().then(([rows]) => {
+                    let roles = rows;
+
+                    const showRoles = roles.map(({ id, title }) => ({
+                        name: title,
+                        value: id,
+                    }));
+
+                    inquirer
+                        .prompt([
+                            {
+                                type: "list",
+                                name: "role_id",
+                                message: "Enter the employee's role",
+                                choices: showRoles,
+                            },
+                        ])
+                        .then((answer) => {
+                            let roleID = answer.role_id;
+
+                            employeeDb.allEmployees().then(([rows]) => {
+                                let managers = rows;
+                                const listManagers = managers.map(
+                                    ({ id, first_name, last_name }) => ({
+                                        name: `${first_name} ${last_name}`,
+                                        value: id,
+                                    })
+                                );
+
+                                inquirer
+                                    .prompt([
+                                        {
+                                            type: "list",
+                                            name: "manager_id",
+                                            message:
+                                                "Enter the employee's manager",
+                                            choices: listManagers,
+                                        },
+                                    ])
+                                    .then((answer) => {
+                                        let managerID = answer.manager_id;
+
+                                        let newEmployee = {
+                                            first_name: firstName,
+                                            last_name: lastName,
+                                            role_id: roleID,
+                                            manager_id: managerID,
+                                        };
+
+                                        employeeDb.insertEmployee(newEmployee);
+                                        console.log(
+                                            `${firstName} ${lastName} has been added to employee database.`
+                                        );
+                                    })
+                                    .then(() => menu());
+                            });
+                        });
+                });
+            });
+    }
+
+    // function to update employee role
+    function updateEmployee() {
+        employeeDb.allEmployees().then(([rows]) => {
+            let employees = rows;
+
+            const listEmployees = employees.map(
+                ({ id, first_name, last_name }) => ({
+                    name: `${first_name} ${last_name}`,
+                    value: id,
+                })
+            );
+
+            inquirer
+                .prompt([
+                    {
+                        type: "list",
+                        name: "employee",
+                        choices: listEmployees,
+                    },
+                ])
+                .then((answer) => {
+                    let employee_id = answer.employee;
+
+                    employeeDb.allRoles().then(([rows]) => {
+                        let roles = rows;
+                        const listRoles = roles.map(({ id, title }) => ({
+                            name: title,
+                            value: id,
+                        }));
+                        inquirer
+                            .prompt([
+                                {
+                                    type: "list",
+                                    name: "role_id",
+                                    message: "Enter the new role",
+                                    choices: listRoles,
+                                },
+                            ])
+                            .then((answer) => {
+                                let newRole = answer.role_id;
+
+                                employeeDb.updateEmployeeRole(
+                                    newRole,
+                                    employee_id
+                                );
+
+                                console.log("Employee role has been updated");
+                            })
+                            .then(() => menu());
+                    });
+                });
+        });
+    }
 }
+
+firstProm();
